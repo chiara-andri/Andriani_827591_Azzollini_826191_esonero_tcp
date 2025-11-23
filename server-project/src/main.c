@@ -203,21 +203,19 @@ int main(int argc, char *argv[]) {
 
     printf("In attesa di un client...\n");
 
-    struct sockaddr_in cad;
-    int client_socket;
-    int client_len;
 
     while (1) {
-        client_len = sizeof(cad);
-        client_socket = accept(serverSocket, (struct sockaddr *)&cad, &client_len);
-        if (client_socket < 0) {
-            #if defined WIN32
-                printf("Accept fallito (WSAGetLastError=%d)\n", WSAGetLastError());
-            #else
-                perror("Accept fallito");
-            #endif
-            continue;
-        }
+    	struct sockaddr_in cad;
+    	#if defined WIN32
+    	int client_len = sizeof(struct sockaddr_in);
+    	#else
+    	socklen_t client_len = sizeof(struct sockaddr_in);
+    	#endif
+    	int client_socket = accept(serverSocket, (struct sockaddr*)&cad, &client_len);
+    	if (client_socket < 0) {
+    	printf("accept() fallita.\n");
+    	continue;
+    }
         handle_client_connection(client_socket, &cad);
     }
 

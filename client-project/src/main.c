@@ -10,6 +10,7 @@
   #define NO_ERROR 0
   #endif
 #else
+
   #include <unistd.h>
   #include <sys/types.h>
   #include <sys/socket.h>
@@ -18,7 +19,7 @@
   #include <netdb.h>
   #define closesocket close
 #endif
-
+#include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
