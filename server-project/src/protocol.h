@@ -9,7 +9,7 @@
 #ifndef PROTOCOL_H_
 #define PROTOCOL_H_
 
-#define SERVER_PORT 27015       // Porta di default da traccia
+#define SERVER_PORT 56700       // Porta di default da traccia
 #define BUFFER_SIZE 512         // Dimensione buffer generico
 #define QUEUE_SIZE 5            // Lunghezza coda connessioni pendenti
 #define CITY_NAME_MAX_LEN 64    // Lunghezza massima nome città

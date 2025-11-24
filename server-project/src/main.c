@@ -138,17 +138,25 @@ void handle_client_connection(int client_socket, struct sockaddr_in *client_addr
 
 
 int main(int argc, char *argv[]) {
-    int port;
+	int port = SERVER_PORT;
 
-    if (argc > 1) {
-        port = atoi(argv[1]);
-    } else {
-        port = SERVER_PORT;
-    }
-    if (port <= 0) {
-        printf("Numero di porta non valido: %s\n", argv[1]);
-        return 0;
-    }
+	for (int i = 1; i < argc; i++) {
+	    if (strcmp(argv[i], "-p") == 0) {
+	        if (++i >= argc) {
+	            printf("Numero di porta non valido\n");
+	            return 1;
+	        }
+	        port = atoi(argv[i]);
+	        if (port <= 0 || port > 65535) {
+	            printf("Numero di porta non valido: %s\n", argv[i]);
+	            return 1;
+	        }
+	    } else {
+	        printf("Uso: server-project [-p porta]\n");
+	        return 1;
+	    }
+	}
+
     srand(time(NULL));
 
     #if defined WIN32
