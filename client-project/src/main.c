@@ -10,7 +10,6 @@
   #define NO_ERROR 0
   #endif
 #else
-
   #include <unistd.h>
   #include <sys/types.h>
   #include <sys/socket.h>
@@ -19,6 +18,7 @@
   #include <netdb.h>
   #define closesocket close
 #endif
+
 #include <ctype.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -26,24 +26,22 @@
 #include <strings.h>
 #include "protocol.h"
 
+// --- Utility ---
 static void clearwinsock(void) {
 #if defined WIN32
     WSACleanup();
 #endif
 }
 
-
 static void usage(void) {
-	    printf("Uso: client-project [-s server] [-p porta] -r \"tipo città\"\n");
-	    printf("  -s server : nome host o IP (default: 127.0.0.1)\n");
-	    printf("  -p porta  : porta del server (default: %d)\n", SERVER_PORT);
-	    printf("  -r req    : stringa di richiesta, ad es. \"t Bari\" oppure \"p Reggio Calabria\"\n");
-	    exit(1);
-	}
-
+    printf("Uso: client-project [-s server] [-p porta] -r \"tipo città\"\n");
+    printf("  -s server : nome host o IP (default: 127.0.0.1)\n");
+    printf("  -p porta  : porta del server (default: %d)\n", SERVER_PORT);
+    printf("  -r req    : stringa di richiesta, ad es. \"t Bari\" oppure \"p Roma\"\n");
+    exit(1);
+}
 
 int main(int argc, char *argv[]) {
-
 #if defined WIN32
     WSADATA wsa_data;
     int result = WSAStartup(MAKEWORD(2,2), &wsa_data);
@@ -86,14 +84,13 @@ int main(int argc, char *argv[]) {
     memset(&request, 0, sizeof(request));
 
     if (request_str[0] == '\0') {
-        printf("argomento -r  non valido (vuoto)\n");
+        printf("argomento -r non valido (vuoto)\n");
         usage();
     }
     request.type = request_str[0];
 
     const char *city_start = request_str + 1;
     while (*city_start == ' ') city_start++;
-
     strncpy(request.city, city_start, CITY_NAME_MAX_LEN - 1);
     request.city[CITY_NAME_MAX_LEN - 1] = '\0';
 
@@ -109,13 +106,12 @@ int main(int argc, char *argv[]) {
     server_addr.sin_family = AF_INET;
     server_addr.sin_port = htons(server_port);
 
-
     unsigned long ip = inet_addr(server_host);
     char resolved_ip[64] = {0};
 
     if (ip != INADDR_NONE) {
         server_addr.sin_addr.s_addr = ip;
-        snprintf(resolved_ip, sizeof(resolved_ip), "%s", server_host);  // <-- aggiungi questa riga
+        snprintf(resolved_ip, sizeof(resolved_ip), "%s", server_host);
     } else {
         struct hostent *host = gethostbyname(server_host);
         if (host == NULL || host->h_addr_list == NULL || host->h_addr_list[0] == NULL) {
@@ -125,9 +121,11 @@ int main(int argc, char *argv[]) {
             return 1;
         }
         memcpy(&server_addr.sin_addr.s_addr, host->h_addr_list[0], host->h_length);
-        strncpy(resolved_ip, inet_ntoa(*(struct in_addr*)host->h_addr_list[0]), sizeof(resolved_ip)-1);
-    }
+        strncpy(resolved_ip,
+                inet_ntoa(*(struct in_addr*)host->h_addr_list[0]),
+                sizeof(resolved_ip)-1);
 
+    }
 
     if (connect(my_socket, (struct sockaddr*)&server_addr, sizeof(server_addr)) < 0) {
         perror("connessione fallita");
@@ -161,13 +159,12 @@ int main(int argc, char *argv[]) {
         city_output[CITY_NAME_MAX_LEN - 1] = '\0';
 
         city_output[0] = toupper(city_output[0]);
-
         for (int i = 1; city_output[i] != '\0'; i++) {
             city_output[i] = tolower(city_output[i]);
         }
 
         if (response.type == TYPE_TEMPERATURE)
-            printf("%s: Temperatura = %.1f%cC\n", city_output, response.value, 248);
+        	printf("%s: Temperatura = %.1f°C\n", city_output, response.value);
         else if (response.type == TYPE_HUMIDITY)
             printf("%s: Umidità = %.1f%%\n", city_output, response.value);
         else if (response.type == TYPE_WIND)
@@ -181,17 +178,13 @@ int main(int argc, char *argv[]) {
         printf("Città non disponibile\n");
     } else if (response.status == STATUS_INVALID_REQUEST) {
         printf("Richiesta non valida\n");
-    } else {
-        printf("Errore sconosciuto (status=%u)\n", response.status);
     }
 
-
-    #if defined WIN32
-        closesocket(my_socket);
-    #else
-        close(my_socket);
-    #endif
+#if defined WIN32
+    closesocket(my_socket);
+#else
+    close(my_socket);
+#endif
     clearwinsock();
     return 0;
 }
-

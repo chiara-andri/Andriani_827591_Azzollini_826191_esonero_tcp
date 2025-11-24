@@ -9,7 +9,7 @@
 #define PROTOCOL_H_
 
 
-#define SERVER_PORT        27015   // Porta di default del server
+#define SERVER_PORT        56700   // Porta di default del server
 #define BUFFER_SIZE        512     // Buffer per parsing e messaggi
 #define CITY_NAME_MAX_LEN  64      // Lunghezza massima nome città
 
